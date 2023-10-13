@@ -95,6 +95,26 @@ paths:
             operationId: id
             summary: Get full details of a game
             description: Returns full details of a given id game
+        delete:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/delete-game'
+                required: true
+            tags:
+                - delete-game
+            responses:
+                '204':
+                    description: Game delete
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error'
+                    description: Game not found
+            summary: Delete a game
+            description: Delete a game by given id
         parameters:
             -
                 name: id
@@ -123,3 +143,14 @@ components:
                     format: float
                     description: ''
                     type: number
+        delete-game:
+            description: ''
+            required:
+                - id
+            type: object
+            properties:
+                id:
+                    description: ''
+                    type: integer
+            example:
+                id: 1

@@ -1,4 +1,5 @@
 const express = require('express');
+const req = require('express/lib/request');
 const swaggerUi = require('swagger-ui-express');
 const yamljs = require('yamljs');
 const swaggerDocument = yamljs.load('./docs/swagger.yaml');
@@ -43,6 +44,20 @@ app.post('/games', (req, res) => {
     res.status(201).location(`${getBaseUrl(req)}/games/${games.length}`)
     .send(game)
 })
+
+app.delete('/games/:id', (req, res) => {
+    const gameId = parseInt(req.params.id, 10); 
+
+    const gameIndex = games.findIndex(game => game.id === gameId);
+
+    if (gameIndex === -1) {
+        return res.status(404).send({ error: "Game not found" });
+    }
+
+    games.splice(gameIndex, 1);
+
+    res.status(204).send(); 
+});
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 

@@ -21,67 +21,105 @@ info:
     | 404| The requested resource cannot be found or the user does not have access to the resource.
     | 5XX| A server error has occurred while processing the request.
 paths:
-  /games:
-    get:
-      tags:
-        - games
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-              examples:
-                List of games:
-                  value:
-                    - Witcher 3
-                    - Cyberpunk 2077
-                    - Dota 2
-          description: Returns a list of games
-      summary: Get a list of all games
-      description: Returns a list of all games in API
-  '/games/{id}':
-    description: ''
-    get:
-      tags:
-        - details
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-              examples:
-                Full details of a given id game:
-                  value:
-                    id: 1
-                    name: Dota 2
-                    price: life
-          description: Returns full details of a given id game
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-              examples:
-                Game /w+:
-                  value: Game \\w+ was not found in the game array.
-          description: Game was not found in the games array
-      operationId: id
-      summary: Get full details of a game
-      description: Returns full details of a given id game
+    /games:
+        get:
+            tags:
+                - games
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: string
+                            examples:
+                                List of games:
+                                    value:
+                                        - Witcher 3
+                                        - Cyberpunk 2077
+                                        - Dota 2
+                    description: Returns a list of games
+            summary: Get a list of all games
+            description: Returns a list of all games in API
+        post:
+            requestBody:
+                description: A new game to be created
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/error'
+                required: true
+            tags:
+                - new-game
+            responses:
+                '201':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/new-game'
+                    description: Add a new game
+                '400':
+                    description: One or all params are missing
+            summary: Creates a game
+            description: Creates a new game
+    '/games/{id}':
+        description: ''
+        get:
+            tags:
+                - details
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: string
+                            examples:
+                                Full details of a given id game:
+                                    value:
+                                        id: 1
+                                        name: Dota 2
+                                        price: life
+                    description: Returns full details of a given id game
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/error'
+                            examples:
+                                Game /w+:
+                                    value: Game \\w+ was not found in game array.
+                    description: Game was not found in games array
+            operationId: id
+            summary: Get full details of a game
+            description: Returns full details of a given id game
+        parameters:
+            -
+                name: id
+                schema:
+                    type: integer
+                in: path
+                required: true
 components:
-  schemas:
-    error:
-      title: Root Type for error
-      description: ''
-      type: object
-      properties:
+    schemas:
         error:
-          type: string
-      example:
-        error: Error message.
+            title: Root Type for error
+            description: ''
+            type: object
+            properties:
+                error:
+                    type: string
+            example:
+                error: Error message.
+        new-game:
+            description: ' {"name": "Tetris", "price": 0.99}'
+            required:
+                - price
+            type: object
+            properties:
+                price:
+                    format: float
+                    description: ''
+                    type: number

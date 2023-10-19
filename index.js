@@ -47,19 +47,16 @@ app.post('/games', (req, res) => {
     .send(game)
 })
 
-app.delete('/games/:id', (req, res) => {
-    const gameId = parseInt(req.params.id, 10); 
-
-    const gameIndex = games.findIndex(game => game.id === gameId);
-
-    if (gameIndex === -1) {
-        return res.status(404).send({ error: "Game not found" });
+app.delete('/games/:id',(req,res)=>{
+    if (typeof games[req.params.id - 1]==='undefined'){
+        return res.status(404).send({error:'Game not found'})
     }
 
-    games.splice(gameIndex, 1);
+    games.splice(req.params.id - 1,1)
 
-    res.status(204).send(); 
-});
+    res.status(204).send({error:"No content"})
+})
+
 
 app.put('/games/:id', (req, res) => {
     const gameId = parseInt(req.params.id, 10);

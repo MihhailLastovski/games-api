@@ -42,6 +42,7 @@
                     <td>{{game.price}}</td>
                     <td>
                         <button @click="deleteGame(game.id)">Delete</button>
+                        <button @click="updateGame(game.id)">Update</button> 
                     </td>
                 </tr>
             </table>
@@ -118,6 +119,26 @@
                                 this.games.push(await response.json());
                                 this.newGameName = ''; 
                                 this.newGamePrice = '';
+                            }
+                        },
+                        updateGame: async function (id) {
+                            const updatedGameName = prompt('Enter the updated name:');
+                            const updatedGamePrice = prompt('Enter the updated price:');
+            
+                            if (updatedGameName && updatedGamePrice) {
+                                const response = await fetch(`http://localhost:8080/games/${id}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({ name: updatedGameName, price: updatedGamePrice }),
+                                });
+            
+                                if (response.ok) {
+                                    const updatedGame = await response.json();
+                                    const gameIndex = this.games.findIndex((game) => game.id === id);
+                                    this.games[gameIndex] = updatedGame;
+                                }
                             }
                         },
                     },

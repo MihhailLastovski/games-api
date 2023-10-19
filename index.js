@@ -61,6 +61,27 @@ app.delete('/games/:id', (req, res) => {
     res.status(204).send(); 
 });
 
+app.put('/games/:id', (req, res) => {
+    const gameId = parseInt(req.params.id, 10);
+
+    const gameIndex = games.findIndex((game) => game.id === gameId);
+
+    if (gameIndex === -1) {
+        return res.status(404).send({ error: 'Game not found' });
+    }
+
+    const updatedGame = {
+        id: gameId,
+        name: req.body.name || games[gameIndex].name,
+        price: req.body.price || games[gameIndex].price,
+    };
+
+    games[gameIndex] = updatedGame;
+
+    res.status(200).send(updatedGame);
+});
+
+
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.listen(port, () => {

@@ -42,10 +42,10 @@
                     <td>{{game.price}}</td>
                     <td>
                         <button @click="deleteGame(game.id)">Delete</button>
-                        <button @click="updateGame(game.id)">Update</button>
-                        <span v-if="updatingGame && updatingGame.id === game.id">(Updating {{ updatingGame.name }})</span>
+                        <button @click="editGame(game.id)">Update</button>
                     </td>
                 </tr>
+                
                 
             </table>
             <div id="gameInfoModal" class="modal" tabindex="-1">
@@ -60,6 +60,20 @@
                                 <tr><th>Name</th><td>{{gameInModal.name}}</td></tr>
                                 <tr><th>Price</th><td>{{gameInModal.price}}</td></tr>
                             </table>
+                            <form @submit.prevent="updateGame">
+                                <table class="table table-striped">
+                                    <tr><th>ID</th><td>{{gameInModal.id}}</td></tr>
+                                    <tr>
+                                        <th>Name</th>
+                                        <td><input v-model="gameInModal.name" /></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Price</th>
+                                        <td><input v-model="gameInModal.price" /></td>
+                                    </tr>
+                                </table>
+                                <button type="submit">Update Game</button>
+                            </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -84,7 +98,6 @@
                         return {
                             newGameName: '',
                             newGamePrice: '',
-                            updatingGame: null, 
                             gameInModal: { name: null },
                             games: [],
                         };
@@ -124,25 +137,29 @@
                                 this.newGamePrice = '';
                             }
                         },
-                        updateGame: async function (id) {
-                            this.updatingGame = this.games.find((game) => game.id === id);
-                            const updatedGameName = prompt('Enter the updated name:');
-                            const updatedGamePrice = prompt('Enter the updated price:');
-            
-                            if (updatedGameName && updatedGamePrice) {
-                                const response = await fetch(`http://localhost:8080/games/${id}`, {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({ name: updatedGameName, price: updatedGamePrice }),
-                                });
-            
-                                if (response.ok) {
-                                    const updatedGame = await response.json();
-                                    const gameIndex = this.games.findIndex((game) => game.id === id);
-                                    this.games[gameIndex] = updatedGame;
-                                }
+                        editGame: async function(id) {
+                            this.gameInModal = await (await fetch(`http://localhost:8080/games/${id}`)).json();
+                            let gameInfoModal = new bootstrap.Modal(document.getElementById('gameInfoModal'), {});
+                            gameInfoModal.show();
+                        },
+                        updateGame: async function() {
+                            const updatedGame = {
+                                name: this.gameInModal.name,
+                                price: this.gameInModal.price,
+                            };
+                    
+                            const response = await fetch(`http://localhost:8080/games/${this.gameInModal.id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(updatedGame),
+                            });
+                    
+                            if (response.ok) {
+                                const gameIndex = this.games.findIndex((game) => game.id === this.gameInModal.id);
+                                this.games[gameIndex] = this.gameInModal;
+
                             }
                         },
                     },

@@ -14,10 +14,14 @@
                 <tr>
                     <th>Name</th>
                     <th>Price</th>
+                    <th>Actions</th> 
                 </tr>
                 <tr v-for="game in games">
                     <td @click="getGame(game.id)">{{game.name}}</td>
                     <td>{{game.price}}</td>
+                    <td>
+                        <button @click="deleteGame(game.id)">Delete</button>
+                    </td>
                 </tr>
             </table>
             <div id="gameInfoModal" class="modal" tabindex="-1">
@@ -39,27 +43,45 @@
                     </div>
                 </div>
             </div>
+        
+        
         </div>  
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
-        <script src="https://unpkg.com/vue@3.2.26/dist/vue.global.prod.js"></script>        <script>
-            const vue = Vue.createApp({
-                data(){
-                    return {
-                        gameInModal: { name: null },
-                        games: []
-                    };
+        <script src="https://unpkg.com/vue@3.2.26/dist/vue.global.prod.js"></script>      
+          <script>
+            const vue = Vue.createApp({           
+                    data() {
+                        return {
+                            newGameName: '',
+                            newGamePrice: '',
+                            gameInModal: { name: null },
+                            games: [],
+                        };
+                    },
+                    async created() {
+                        this.games = await (await fetch('http://localhost:8080/games')).json();
+                    },
+                    methods: { 
+                        getGame: async function(id) {
+                            this.gameInModal = await (await fetch(`http://localhost:8080/games/${id}`)).json();
+                            let gameInfoModal = new bootstrap.Modal(document.getElementById('gameInfoModal'), {});
+                            gameInfoModal.show();
+                        },
+                        deleteGame: async function(id) {
+                            const response = await fetch(`http://localhost:8080/games/${id}`, {
+                                method: 'DELETE',
+                            });
+                            if (response.ok) {
+                                this.games = this.games.filter((game) => game.id !== id);
+                            }
+                        },
+                        
+                    },
+                    
+                    
                 },
-                async created() {
-                    this.games = await (await fetch('http://localhost:8080/games')).json();
-                },
-                methods: { // Corrected "methods" key
-                    getGame: async function(id) {
-                        this.gameInModal = await (await fetch(`http://localhost:8080/games/${id}`)).json();
-                        let gameInfoModal = new bootstrap.Modal(document.getElementById('gameInfoModal'), {});
-                        gameInfoModal.show();
-                    }
-                }
-            }).mount('#app');
+            {
+        }).mount('#app');
             
         </script>
     </body>

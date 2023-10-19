@@ -43,7 +43,11 @@
                     </div>
                 </div>
             </div>
-        
+            <form @submit.prevent="addGame">
+                <input v-model="newGameName" placeholder="Name" required />
+                <input v-model="newGamePrice" placeholder="Price" required />
+                <button type="submit">Add Game</button>
+            </form>
         
         </div>  
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
@@ -75,7 +79,24 @@
                                 this.games = this.games.filter((game) => game.id !== id);
                             }
                         },
-                        
+                        addGame: async function() {
+                            const newGame = {
+                                name: this.newGameName,
+                                price: this.newGamePrice,
+                            };
+                            const response = await fetch('http://localhost:8080/games', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(newGame),
+                            });
+                            if (response.ok) {
+                                this.games.push(await response.json());
+                                this.newGameName = ''; // Clear the form
+                                this.newGamePrice = '';
+                            }
+                        },
                     },
                     
                     
